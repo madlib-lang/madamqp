@@ -1,0 +1,9 @@
+{
+  "name": "MadAMQP",
+  "madlibVersion": "0.13.0",
+  "main": "src/Main.mad",
+  "staticLibs": [
+    "./lib/build/libmadamqp.a",
+    "./lib/lib/libamqpcpp.a"
+  ]
+}

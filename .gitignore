@@ -1,0 +1,9 @@
+lib/lib
+lib/include
+lib/build
+src/Test.mad
+
+.vscode
+.buildlibs
+.DS_Store
+build

@@ -1,0 +1,97 @@
+import type { Wish } from "Wish"
+import { Wish } from "Wish"
+
+type Connection = Connection
+export type Connection
+
+type Channel = Channel
+export type Channel
+
+export type Error
+  = ConnectionError(String)
+  | ChannelCreationError(String)
+  | ExchangeDeclarationError(String)
+  | QueueDeclarationError(String)
+  | QueueBindingError(String)
+
+type ExchangeType = ExchangeType
+export type ExchangeType
+
+makeFanoutFFI :: {} -> ExchangeType
+makeFanoutFFI = extern "madamqp__makeFanout"
+
+makeDirectFFI :: {} -> ExchangeType
+makeDirectFFI = extern "madamqp__makeDirect"
+
+makeTopicFFI :: {} -> ExchangeType
+makeTopicFFI = extern "madamqp__makeTopic"
+
+makeHeadersFFI :: {} -> ExchangeType
+makeHeadersFFI = extern "madamqp__makeHeaders"
+
+export Fanout = makeFanoutFFI()
+export Direct = makeDirectFFI()
+export Topic = makeTopicFFI()
+export Headers = makeHeadersFFI()
+
+
+// run :: {} -> {}
+// run = extern "run"
+
+connectFFI :: String -> (String -> {}) -> (Connection -> {}) -> {}
+connectFFI = extern "madamqp__connect"
+
+disconnect :: Connection -> {}
+export disconnect = extern "madamqp__disconnect"
+
+connect :: String -> Wish Error Connection
+export connect = (url) => Wish((bad, good) => {
+  connectFFI(url, pipe(ConnectionError, bad), good)
+})
+
+createChannelFFI :: Connection -> (String -> {}) -> (Channel -> {}) -> {}
+createChannelFFI = extern "madamqp__createChannel"
+
+createChannel :: Connection -> Wish Error Channel
+export createChannel = (url) => Wish((bad, good) => {
+  createChannelFFI(url, pipe(ChannelCreationError, bad), good)
+})
+
+consume :: Channel -> String -> (String -> Integer -> {}) -> {}
+export consume = extern "madamqp__consume"
+
+ack :: Channel -> Integer -> {}
+export ack = extern "madamqp__ack"
+
+nack :: Channel -> Integer -> {}
+export nack = extern "madamqp__nack"
+
+
+// madamqp__bindQueue(AMQP::TcpChannel *channel, char *exchange, char *queue, char *routingKey, PAP_t *badCB, PAP_t *goodCB) {
+bindQueueFFI :: Channel -> String -> String -> String -> (String -> {}) -> ({} -> {}) -> {}
+bindQueueFFI = extern "madamqp__bindQueue"
+
+bindQueue :: Channel -> String -> String -> String -> Wish Error {}
+export bindQueue = (channel, exchange, queue, routingKey) => Wish((bad, good) => {
+  bindQueueFFI(channel, exchange, queue, routingKey, pipe(QueueBindingError, bad), good)
+})
+
+
+declareExchangeFFI :: Channel -> String -> ExchangeType -> (String -> {}) -> ({} -> {}) -> {}
+declareExchangeFFI = extern "madamqp__declareExchange"
+
+declareExchange :: Channel -> String -> ExchangeType -> Wish Error {}
+export declareExchange = (channel, name, typ) => Wish((bad, good) => {
+  declareExchangeFFI(channel, name, typ, pipe(ExchangeDeclarationError, bad), good)
+})
+
+declareQueueFFI :: Channel -> String -> (String -> {}) -> ({} -> {}) -> {}
+declareQueueFFI = extern "madamqp__declareQueue"
+
+declareQueue :: Channel -> String -> Wish Error {}
+export declareQueue = (channel, name) => Wish((bad, good) => {
+  declareQueueFFI(channel, name, pipe(QueueDeclarationError, bad), good)
+})
+
+publish :: Channel -> String -> String -> String -> {}
+export publish = extern "madamqp__publish"

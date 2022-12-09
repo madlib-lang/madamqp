@@ -1,0 +1,23 @@
+#!/bin/sh
+
+if [ ! -d "lib/include" ]; then
+  mkdir -p .buildlibs
+  mkdir -p lib/include
+  mkdir -p lib/lib
+
+  cd .buildlibs
+
+  MADLIB_RUNTIME_LIB_HEADERS_PATH="$(madlib config runtime-lib-headers-path)"
+
+  wget https://github.com/madlib-lang/AMQP-CPP/archive/refs/heads/master.zip
+  unzip master.zip
+  cd AMQP-CPP-master
+  make static CPLUS_INCLUDE_PATH="$MADLIB_RUNTIME_LIB_HEADERS_PATH" LDFLAGS="-lssl"
+  cp src/libamqpcpp.a.4.3.19 ../../lib/lib/libamqpcpp.a
+  cp -R include ../../lib/
+
+  cd ../../
+  rm -rf .buildlibs
+fi
+
+make -C lib -j

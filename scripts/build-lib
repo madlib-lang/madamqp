@@ -16,7 +16,8 @@ if [ ! -d "lib/include" ]; then
   cp src/libamqpcpp.a.4.3.19 ../../lib/lib/libamqpcpp.a
   cp -R include ../../lib/
 
-  cd ../../
+  cd ../..
+
   rm -rf .buildlibs
 fi
 

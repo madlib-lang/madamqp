@@ -5,5 +5,8 @@
   "staticLibs": [
     "./lib/build/libmadamqp.a",
     "./lib/lib/libamqpcpp.a"
-  ]
+  ],
+  "hooks": {
+    "postInstall": "./scripts/build-lib"
+  }
 }
